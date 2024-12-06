@@ -1,0 +1,2 @@
+Index	Placa	Modelo	Número de Motor	Año	Categoría	Nombre del Conductor	Documento de Identidad	Teléfono	Seguro Social
+0	ABC321	Toyota-M2	Motor100		2010	tradicional	Marlon	123098	555-122	000012

@@ -1,0 +1,7 @@
+# Ignorar configuraciones de IntelliJ y PyCharm
+.idea/
+*.iml
+
+# Ignorar carpetas temporales o de construcción
+out/
+build/
