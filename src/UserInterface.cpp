@@ -94,7 +94,6 @@ void UserInterface::menu() {
 void UserInterface::menuReportes() {
     std::cout << "=====================================" << std::endl;
     std::cout << "  Bienvenido al sistema de reportes  " << std::endl;
-    std::cout << "            de taxis                 " << std::endl;
     std::cout << "=====================================" << std::endl;
 
     // Opciones del menú
@@ -102,7 +101,7 @@ void UserInterface::menuReportes() {
     std::cout << "2." << " Listado de viajes por vehiculo" << std::endl;
     std::cout << "3." << " Ingresos totales obtenidos en un mes" << std::endl;
     std::cout << "4." << " Ingresos totales obtenidos en un mes por vehiculo" << std::endl;
-    std::cout << "8." << " Salir." << std::endl;
+    std::cout << "5." << " Salir." << std::endl;
 
     // Solicitar opción
     std::cout << "\nPor favor, ingresa una opcion: ";

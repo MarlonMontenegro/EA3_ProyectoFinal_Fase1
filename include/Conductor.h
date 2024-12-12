@@ -20,6 +20,9 @@ public:
           seguroSocial(seguroSocial), telefono(telefono) {
     }
 
+    // Declarar el operador >> como amigo
+    friend std::istream &operator>>(std::istream &is, Conductor &conductor);
+
 
     std::string getNombre() const;
 

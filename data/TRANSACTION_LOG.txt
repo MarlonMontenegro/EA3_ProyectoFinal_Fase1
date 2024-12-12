@@ -1,1 +1,5 @@
-Conductor: Marlon, Taxi: ABC321, Inicio: 06/12/2024 07:34, Fin: En curso, Dinero generado: $20
+Conductor           Taxi           Inicio              Dinero Generado     Num Viajes     
+Marlon         Sv100          11/12/2024          200.00              1              
+Marlon         Sv100          11/12/2024          100.00              1              
+Marlon         Sv100          11/12/2024          200.00              1              
+Eduardo        Sv0021         11/12/2024          104.20              1              

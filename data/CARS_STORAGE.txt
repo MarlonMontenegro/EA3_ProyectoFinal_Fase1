@@ -1,2 +1,3 @@
-Index	Placa	Modelo	Número de Motor	Año	Categoría	Nombre del Conductor	Documento de Identidad	Teléfono	Seguro Social
-0	ABC321	Toyota-M2	Motor100		2010	tradicional	Marlon	123098	555-122	000012
+Index     Placa          Modelo              Motor               Año      Categoria      Nombre del Conductor     Documento de IdentidadTelefono       Seguro Social  
+0         Sv100          Toyota      Motor2013           2024      ejecutiva      Marlon                   059-12              777-555        123Ab121
+1         Sv0021         Nissan              1231av12            2024      ejecutiva      Eduardo                  024-12              79365398       121310

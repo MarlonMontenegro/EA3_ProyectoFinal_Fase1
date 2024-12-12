@@ -14,10 +14,9 @@ private:
     std::deque<RegistroTaxiConductor> taxisDisponiblesEjecutivos;
     std::deque<RegistroTaxiConductor> taxisDisponiblesTradicionales;
 
-    std::vector<Viajes> historialViajes;
+    static std::vector<Viajes> historialViajes;
 
 public:
-
     void agregarRegistro(const RegistroTaxiConductor &registro);
 
     void mostrarTabla() const;
@@ -38,6 +37,11 @@ public:
 
     void cargarRegistrosDesdeArchivo();
 
+    static void cargarViajeDesdeArchvio();
+
+    void viajesVehiculoEspecifico();
+
+    void listadoDeViajes() const;
 };
 
 

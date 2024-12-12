@@ -4,7 +4,6 @@
 #include <RegistroTaxiConductor.h>
 #include <string>
 #include <utility>
-#include <vector>
 #include <Viajes.h>
 
 class ArchivoManager {
@@ -16,14 +15,13 @@ public:
     explicit ArchivoManager(std::string _path) : path(std::move(_path)) {
     }
 
-    void guardarRegistrosEnArchivo(const std::vector<RegistroTaxiConductor> &registros) const;
 
     void guardarRegistroUnico(const RegistroTaxiConductor &registro) const;
 
 
-    static void guardarViajes(const std::vector<Viajes> &viajes) ;
+    static void guardarViajeIndividual(const Viajes &viaje);
 
-
+    void leerListadoDeViajes();
 };
 
 #endif // ARCHIVOMANAGER_H

@@ -19,6 +19,7 @@ public:
 
     // Constructor con los parámetros necesarios
     Taxi(std::string placa, std::string numeroMotor, std::string modelo, int anio);
+    friend std::istream &operator>>(std::istream &is, Taxi &taxi);
 
 
     // Getters

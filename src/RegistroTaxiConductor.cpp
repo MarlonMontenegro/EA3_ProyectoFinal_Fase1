@@ -7,10 +7,12 @@ RegistroTaxiConductor::RegistroTaxiConductor(Conductor c, Taxi t)
 RegistroTaxiConductor::RegistroTaxiConductor() : conductor(), taxi() {}
 
 void RegistroTaxiConductor::mostrarInfo() const {
-    std::cout << "Conductor: " << conductor.getNombre() << "\n"
-              << "Taxi: " << taxi.getPlaca() << " (" << taxi.getCategoria() << ")\n";
-}
+    conductor.mostrarInformacion(); // Llama al método de la clase Conductor
 
+    taxi.mostrarInformacion(); // Llama al método de la clase Taxi
+
+    std::cout << "========================================" << std::endl;
+}
 std::string RegistroTaxiConductor::toString() const {
     return taxi.getPlaca() + "\t" +
            taxi.getModelo() + "\t" +

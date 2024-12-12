@@ -1,61 +1,34 @@
 #include "ArchivoManager.h"
-#include <vector>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <RegistroTaxiConductor.h>
 
-
-void ArchivoManager::guardarRegistrosEnArchivo(const std::vector<RegistroTaxiConductor> &registros) const {
-    std::ofstream archivo(path, std::ios::app); // Abrir en modo de añadir
-    if (archivo.is_open()) {
-        // Escribir encabezados solo si el archivo está vacío
-        archivo.seekp(0, std::ios::end); // Mover al final del archivo
-
-        if (archivo.tellp() == 0) {
-            // Si está vacío, escribir encabezados
-            archivo <<
-                    "Index\tPlaca\tModelo\tNúmero de Motor\tAño\tCategoría\tNombre del Conductor\tDocumento de Identidad\tTeléfono\tSeguro Social\n";
-        }
-
-        // Obtener el número actual de registros en el archivo para calcular el índice
-        int currentIndex = 0;
-        std::ifstream leerArchivo(path);
-        std::string linea;
-        while (std::getline(leerArchivo, linea)) {
-            if (!linea.empty() && linea.find("Index") == std::string::npos) {
-                currentIndex++;
-            }
-        }
-        leerArchivo.close();
-
-        // Guardar los registros con índices
-        for (const auto &registro: registros) {
-            archivo << currentIndex++ << "\t" << registro.toString() << "\n";
-        }
-
-        archivo.close();
-        std::cout << "Registros guardados correctamente en: " << path << std::endl;
-    } else {
-        std::cerr << "Error al abrir el archivo: " << path << std::endl;
-    }
-}
-
 void ArchivoManager::guardarRegistroUnico(const RegistroTaxiConductor &registro) const {
     std::ofstream archivo(path, std::ios::app); // Abrir en modo agregar
+
     if (!archivo.is_open()) {
         std::cerr << "Error al abrir el archivo: " << path << std::endl;
         return;
     }
 
     if (archivo.tellp() == 0) {
-        // Si está vacío, escribir encabezados
-        archivo <<
-                "Index\tPlaca\tModelo\tNúmero de Motor\tAño\tCategoría\tNombre del Conductor\tDocumento de Identidad\tTeléfono\tSeguro Social\n";
+        archivo << std::left
+                << std::setw(10) << "Index"
+                << std::setw(15) << "Placa"
+                << std::setw(20) << "Modelo"
+                << std::setw(20) << "Motor"
+                << std::setw(10) << "Año"
+                << std::setw(15) << "Categoria"
+                << std::setw(25) << "Nombre del Conductor"
+                << std::setw(20) << "Documento de Identidad"
+                << std::setw(15) << "Telefono"
+                << std::setw(15) << "Seguro Social"
+                << "\n";
     }
 
-    // Calcular el índice actual
     int currentIndex = 0;
-    std::ifstream leerArchivo(path); // Reabrir en modo lectura para contar líneas
+    std::ifstream leerArchivo(path);
     std::string linea;
     while (std::getline(leerArchivo, linea)) {
         if (!linea.empty() && linea.find("Index") == std::string::npos) {
@@ -64,26 +37,56 @@ void ArchivoManager::guardarRegistroUnico(const RegistroTaxiConductor &registro)
     }
     leerArchivo.close();
 
-    // Escribir el registro con el índice calculado
-    archivo << currentIndex << "\t" << registro.toString() << "\n";
+    archivo << std::left
+            << std::setw(10) << currentIndex
+            << std::setw(15) << registro.taxi.getPlaca()
+            << std::setw(20) << registro.taxi.getModelo()
+            << std::setw(20) << registro.taxi.getNumeroMotor()
+            << std::setw(10) << registro.taxi.getAnio()
+            << std::setw(15) << registro.taxi.getCategoria()
+            << std::setw(25) << registro.conductor.getNombre()
+            << std::setw(20) << registro.conductor.getDocumentoIdentidad()
+            << std::setw(15) << registro.conductor.getTelefono()
+            << std::setw(15) << registro.conductor.getNumeroSeguroSocial()
+            << "\n";
+
     archivo.close();
 
-    std::cout << "Registro guardado con índice: " << currentIndex << " en el archivo: " << registro.taxi.getPlaca() <<
-            std::endl;
+    std::cout << "Registro guardado con índice: " << currentIndex << " en el archivo: " << path << std::endl;
 }
 
-void ArchivoManager::guardarViajes(const std::vector<Viajes> &viajes) {
-    std::string path_viajes = "../data/TRANSACTION_LOG.txt";
+void ArchivoManager::guardarViajeIndividual(const Viajes &viaje) {
+    const std::string path_viajes = "../data/TRANSACTION_LOG.txt";
 
-    std::ofstream archivo(path_viajes, std::ios::app); // Abrir en modo de añadir
+    bool archivoVacio = true;
+    std::ifstream archivoLectura(path_viajes);
+    if (archivoLectura.is_open()) {
+        archivoVacio = archivoLectura.peek() == std::ifstream::traits_type::eof(); // Verifica si el archivo está vacío
+        archivoLectura.close();
+    }
 
+    std::ofstream archivo(path_viajes, std::ios::app);
     if (archivo.is_open()) {
-        for (const auto &viaje: viajes) {
-            archivo << viaje.toString() << "\n";
+        if (archivoVacio) {
+            archivo << std::left << std::setw(20) << "Conductor"
+                    << std::setw(15) << "Taxi"
+                    << std::setw(20) << "Inicio"
+                    << std::setw(20) << "Dinero Generado"
+                    << std::setw(15) << "Num Viajes"
+                    << "\n";
         }
-        std::cout << "Registros guardados correctamente en: " << path_viajes << std::endl;
-    } else {
-        std::cerr << "Error al abrir el archivo: " << path_viajes << std::endl;
 
+        archivo << std::left
+                << std::setw(15) << viaje.getConductor().getNombre()
+                << std::setw(15) << viaje.getTaxi().getPlaca()
+                << std::setw(20) << viaje.getInicio()
+                << std::setw(20) << std::fixed << std::setprecision(2) << viaje.getDineroGenerado()
+                << std::setw(15) << viaje.getNumViajes()
+                << "\n";
+
+        archivo.close();
+        std::cout << "Viaje guardado en formato de tabla en el archivo: " << path_viajes << std::endl;
+    } else {
+        std::cerr << "Error al abrir el archivo para guardar el viaje." << std::endl;
     }
 }

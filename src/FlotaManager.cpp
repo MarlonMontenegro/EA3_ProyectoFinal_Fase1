@@ -3,10 +3,12 @@
 #include <algorithm>
 #include <ArchivoManager.h>
 #include <fstream>
+#include <iomanip>
 #include <UserInterface.h>
 #include <RegistroTaxiConductor.h>
 #include <sstream>
 
+std::vector<Viajes> FlotaManager::historialViajes;
 
 void FlotaManager::registrarTaxiYConductor() {
     const Taxi taxi = UserInterface::registrarTaxi();
@@ -57,7 +59,7 @@ void FlotaManager::mostrarTabla() const {
         std::cout << i << "\t"
                 << registro.taxi.getPlaca() << "\t\t"
                 << registro.taxi.getModelo() << "\t\t"
-                << registro.taxi.getCategoria() << "\t" // Mostrar la categoría
+                << registro.taxi.getCategoria() << "\t"
                 << registro.conductor.getNombre() << "\n";
     }
 }
@@ -66,7 +68,7 @@ void FlotaManager::mostrarRegistroPorIndex(int index) const {
     if (index >= 0 && index < static_cast<int>(registros.size())) {
         std::cout << "====================================================\n";
         std::cout << "                  Registro                         \n";
-        std::cout << "====================================================\n";
+        std::cout << "====================================================\n\n";
         registros[index].mostrarInfo(); // Retornar el registro en la posición indicada
     } else {
         throw std::out_of_range("Índice fuera de rango.");
@@ -80,13 +82,12 @@ void FlotaManager::iniciarViaje() {
 
     if (eleccionDeCategoria == 1) {
         if (!taxisDisponiblesTradicionales.empty()) {
-
             // Obtener el taxi y realizar el viaje
             RegistroTaxiConductor &registroTradicional = taxisDisponiblesTradicionales.front();
-            const Viajes nuevoViaje(registroTradicional.conductor, registroTradicional.taxi, tarifa);
-            historialViajes.push_back(nuevoViaje);
 
-            archivo.guardarViajes(historialViajes);
+            const Viajes nuevoViaje(registroTradicional.conductor, registroTradicional.taxi, tarifa);
+            archivo.guardarViajeIndividual(nuevoViaje);
+            historialViajes.push_back(nuevoViaje);
 
             // Actualizar en registros
             for (auto &registro: registros) {
@@ -108,9 +109,10 @@ void FlotaManager::iniciarViaje() {
             RegistroTaxiConductor &registroEjecutivo = taxisDisponiblesEjecutivos.front();
 
             Viajes nuevoViaje(registroEjecutivo.conductor, registroEjecutivo.taxi, tarifa);
+            archivo.guardarViajeIndividual(nuevoViaje);
+
             historialViajes.push_back(nuevoViaje);
 
-            archivo.guardarViajes(historialViajes);
             // Actualizar en registros
             for (auto &registro: registros) {
                 if (registro.taxi.getPlaca() == registroEjecutivo.taxi.getPlaca()) {
@@ -145,12 +147,12 @@ void FlotaManager::mostrarTaxisEnRuta() const {
     }
 
     std::cout << "Taxis en ruta:\n";
-    std::cout << "Index\tConductor\tTaxi";
+    std::cout << "Index\tConductor\tTaxi\n";
     for (size_t i = 0; i < taxisEnRuta.size(); ++i) {
         const auto &taxi = taxisEnRuta[i];
         std::cout << i << "\t"
-                << taxi.conductor.getNombre() << "\t"
-                << taxi.taxi.getPlaca() << "\t";
+                << taxi.conductor.getNombre() << "\t\t"
+                << taxi.taxi.getPlaca() << "\t\t\t\n";
     }
 }
 
@@ -182,6 +184,8 @@ void FlotaManager::mostrarTaxisDisponibles() const {
 void FlotaManager::finalizarViaje() {
     int index;
     bool indexIncorrecto = true;
+    ArchivoManager archivo;
+    Viajes viaje;
     mostrarTaxisEnRuta();
 
     std::cout << "Ingrese el viaje a finalizar: ";
@@ -256,4 +260,100 @@ void FlotaManager::cargarRegistrosDesdeArchivo() {
 
     archivo.close();
     std::cout << "Registros cargados exitosamente desde el archivo." << std::endl;
+}
+
+void FlotaManager::cargarViajeDesdeArchvio() {
+    const std::string archivoPath = "../data/TRANSACTION_LOG.txt";
+    std::ifstream archivo(archivoPath);
+
+    if (!archivo.is_open()) {
+        std::cerr << "Error: No se pudo abrir el archivo: " << archivoPath << std::endl;
+        return;
+    }
+
+    std::string linea;
+
+    // Saltar encabezados
+    std::getline(archivo, linea);
+
+    while (std::getline(archivo, linea)) {
+        if (linea.empty()) continue;
+
+        std::istringstream stream(linea);
+
+        std::string nombreConductor, placaTaxi, inicio;
+        double dineroGenerado;
+        int numeroDeViaje;
+
+        // Leer datos del flujo a variables temporales
+        stream >> nombreConductor >> placaTaxi >> inicio >> dineroGenerado >> numeroDeViaje;
+
+        // Crear objetos temporales
+        Conductor conductor(nombreConductor, "", "", "");
+        Taxi taxi(placaTaxi, "", "", 2010);
+
+        // Crear el viaje y añadirlo al historial
+        Viajes viaje(conductor, taxi, dineroGenerado, inicio, numeroDeViaje);
+        historialViajes.push_back(viaje);
+    }
+
+    archivo.close();
+    std::cout << "Viajes cargados exitosamente desde el archivo." << std::endl;
+}
+
+void FlotaManager::listadoDeViajes() const {
+    std::cout << "=====================================\n";
+    std::cout << "                  Viajes             \n";
+    std::cout << "=====================================\n";
+    std::cout << "Index\tConductor\tPlaca\tDinero\tFecha\n";
+    std::cout << "--------------------------------------\n";
+    for (size_t i = 0; i < historialViajes.size(); i++) {
+        const auto &viaje = historialViajes[i];
+        std::cout
+                << i << "\t"
+                << viaje.getConductor().getNombre() << "\t"
+                << viaje.getTaxi().getPlaca() << "\t"
+                << viaje.getDineroGenerado() << "\t"
+                << viaje.getInicio() << "\n";
+    }
+}
+
+
+void FlotaManager::viajesVehiculoEspecifico() {
+    std::string placa;
+    mostrarTabla();
+    double suma = 0;
+
+    std::cout << "Ingrese el numero de placa de taxi: ";
+    std::getline(std::cin >> std::ws, placa);
+
+    bool hayViajes = false;
+
+    std::cout << "=====================================================================\n";
+    std::cout << std::setw(15) << "Conductor"
+            << std::setw(15) << "Placa"
+            << std::setw(15) << "Fecha"
+            << std::setw(15) << "Dinero"
+            << "\n";
+    std::cout << "---------------------------------------------------------------------\n";
+
+    for (const auto &viaje: historialViajes) {
+        if (viaje.getTaxi().getPlaca() == placa) {
+            suma += viaje.getDineroGenerado();
+            hayViajes = true;
+
+            std::cout << std::setw(15) << viaje.getConductor().getNombre()
+                    << std::setw(15) << viaje.getTaxi().getPlaca()
+                    << std::setw(15) << viaje.getInicio()
+                    << std::setw(15) << std::fixed << std::setprecision(2) << viaje.getDineroGenerado()
+                    << "\n";
+        }
+    }
+    if (!hayViajes) {
+        std::cout << "No se encontraron viajes para el taxi con la placa: " << placa << std::endl;
+    } else {
+        std::cout << "---------------------------------------------------------------------\n";
+        std::cout << "Total Dinero Generado: $" << std::fixed << std::setprecision(2) << suma << "\n";
+        std::cout << "=====================================================================\n";
+    }
 }
